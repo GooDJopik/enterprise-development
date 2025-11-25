@@ -1,4 +1,4 @@
-﻿namespace CarRental.Models;
+﻿namespace CarRental.Domain.Models;
 
 /// <summary>
 /// Represents a car available for rental.
@@ -13,15 +13,15 @@ public class Car
     /// <summary>
     /// License plate number of the car.
     /// </summary>
-    public string LicensePlate { get; set; } = "";
+    public required string LicensePlate { get; set; }
 
     /// <summary>
     /// Color of the car.
     /// </summary>
-    public string Color { get; set; } = "";
+    public required string Color { get; set; }
 
     /// <summary>
     /// The generation of the car's model.
     /// </summary>
-    public ModelGeneration Generation { get; set; } = new();
+    public required ModelGeneration Generation { get; set; }
 }

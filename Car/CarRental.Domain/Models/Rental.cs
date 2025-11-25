@@ -1,4 +1,4 @@
-﻿namespace CarRental.Models;
+﻿namespace CarRental.Domain.Models;
 
 /// <summary>
 /// Represents a rental transaction where a client rents a car.
@@ -13,12 +13,12 @@ public class Rental
     /// <summary>
     /// The client who rents the car.
     /// </summary>
-    public Client Client { get; set; } = new();
+    public required Client Client { get; set; }
 
     /// <summary>
     /// The car being rented.
     /// </summary>
-    public Car Car { get; set; } = new();
+    public required Car Car { get; set; }
 
     /// <summary>
     /// Start date and time of the rental.

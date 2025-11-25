@@ -2,153 +2,137 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using CarRental.Models;
+using CarRental.Domain;
+using CarRental.Domain.Models;
 
 namespace CarRental.Tests;
 
 /// <summary>
-/// Contains unit tests that verify analytical queries 
-/// and business logic of the car rental system using seeded data.
+/// A set of unit tests to test the functionality of car rental.
+/// Checks are conducted based on reference data from <see cref="DataSeeder"/>.
 /// </summary>
-public class RentalTests : IClassFixture<DataSeeder>
+public class RentalTests(DataSeeder dataSeeder) : IClassFixture<DataSeeder>
 {
-    /// <summary>
-    /// List of available car models.
-    /// </summary>
-    private readonly List<Model> _models;
+    private readonly List<Rental> _rentals = dataSeeder.Rentals;
 
     /// <summary>
-    /// List of car model generations with pricing and technical details.
-    /// </summary>
-    private readonly List<ModelGeneration> _generations;
-
-    /// <summary>
-    /// List of cars currently in the rental fleet.
-    /// </summary>
-    private readonly List<Car> _cars;
-
-    /// <summary>
-    /// List of clients who have rented cars.
-    /// </summary>
-    private readonly List<Client> _clients;
-
-    /// <summary>
-    /// List of all rental transactions.
-    /// </summary>
-    private readonly List<Rental> _rentals;
-
-    /// <summary>
-    /// Initializes the test class with data from <see cref="DataSeeder"/> fixture.
-    /// </summary>
-    /// <param name="dataSeeder">Fixture providing seeded test data.</param>
-    public RentalTests(DataSeeder dataSeeder)
-    {
-        _models = dataSeeder.Models;
-        _generations = dataSeeder.Generations;
-        _cars = dataSeeder.Cars;
-        _clients = dataSeeder.Clients;
-        _rentals = dataSeeder.Rentals;
-    }
-
-    /// <summary>
-    /// Verifies that all clients who rented cars of a specific model 
-    /// are correctly retrieved and sorted by full name.
+    /// Verifies that customers who have rented a car of a specified model are returned in alphabetical order by full name.
+    /// Works dynamically based on seeded data.
     /// </summary>
     [Fact]
-    public void ClientsByModel_ShouldReturnOrderedByFullName()
+    public void ClientsWhoRentedSpecificModelShouldBeOrderedByFullName()
     {
-        var targetModel = "Toyota Corolla";
+        var modelName = "Toyota Corolla";
 
-        var clients = _rentals
-            .Where(r => r.Car.Generation.Model.Name == targetModel)
-            .Select(r => r.Client)
+        var expectedClients = _rentals
+            .Where(r => r.Car.Generation.Model.Name == modelName)
+            .Select(r => r.Client.FullName)
             .Distinct()
-            .OrderBy(c => c.FullName)
+            .OrderBy(c => c)
             .ToList();
 
-        Assert.NotEmpty(clients);
+        var result = _rentals
+            .Where(r => r.Car.Generation.Model.Name == modelName)
+            .Select(r => r.Client.FullName)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToList();
 
-        foreach (var c in clients)
-            Console.WriteLine($"{c.FullName} ({c.LicenseNumber})");
+        Assert.Equal(expectedClients, result);
     }
 
     /// <summary>
-    /// Determines which cars are currently in use based on the active rental period.
+    /// Verifies that the cars currently rented at a given time are returned correctly.
     /// </summary>
     [Fact]
-    public void CarsInUse_ShouldReturnCurrentlyRentedCars()
+    public void CarsCurrentlyRentedShouldReturnCarsInUse()
     {
         var now = new DateTime(2025, 11, 10, 10, 0, 0);
 
-        var carsInUse = _rentals
+        var expectedLicensePlates = _rentals
             .Where(r => r.StartTime <= now && r.StartTime.AddHours(r.DurationHours) > now)
-            .Select(r => r.Car)
+            .Select(r => r.Car.LicensePlate)
             .Distinct()
+            .OrderBy(c => c)
             .ToList();
 
-        Assert.NotEmpty(carsInUse);
+        var result = _rentals
+            .Where(r => r.StartTime <= now && r.StartTime.AddHours(r.DurationHours) > now)
+            .Select(r => r.Car.LicensePlate)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToList();
 
-        foreach (var car in carsInUse)
-            Console.WriteLine($"{car.LicensePlate} - {car.Generation.Model.Name}");
+        Assert.Equal(expectedLicensePlates, result);
     }
 
     /// <summary>
-    /// Finds the five cars that have been rented the most times.
+    /// Checks the top 5 most frequently rented cars.
+    /// Works dynamically based on seeded data.
     /// </summary>
     [Fact]
-    public void Top5MostRentedCars_ShouldReturnTop5()
+    public void Top5MostFrequentlyRentedCarsShouldReturnCorrectResult()
     {
-        var topCars = _rentals
-            .GroupBy(r => r.Car)
-            .Select(g => new { Car = g.Key, Count = g.Count() })
+        var result = _rentals
+            .GroupBy(r => r.Car.LicensePlate)
+            .Select(g => new { LicensePlate = g.Key, Count = g.Count() })
             .OrderByDescending(x => x.Count)
             .Take(5)
+            .Select(x => (x.LicensePlate, x.Count))
             .ToList();
 
-        Assert.True(topCars.Count <= 5);
-
-        foreach (var x in topCars)
-            Console.WriteLine($"{x.Car.LicensePlate} - {x.Car.Generation.Model.Name} ({x.Count} rentals)");
+        Assert.True(result.SequenceEqual(result.OrderByDescending(x => x.Count)));
     }
 
     /// <summary>
-    /// Calculates the number of rentals for each car in the fleet.
+    /// Checks the number of rents for each car.
+    /// Dynamic validation based on seeded data.
     /// </summary>
     [Fact]
-    public void RentCountPerCar_ShouldReturnCountForEachCar()
+    public void RentCountForEachCarShouldReturnCorrectCounts()
     {
-        var rentCounts = _rentals
-            .GroupBy(r => r.Car)
-            .Select(g => new { Car = g.Key, Count = g.Count() })
-            .ToList();
+        var expected = _rentals
+            .GroupBy(r => r.Car.LicensePlate)
+            .ToDictionary(g => g.Key, g => g.Count());
 
-        Assert.NotEmpty(rentCounts);
+        var result = _rentals
+            .GroupBy(r => r.Car.LicensePlate)
+            .ToDictionary(g => g.Key, g => g.Count());
 
-        foreach (var x in rentCounts)
-            Console.WriteLine($"{x.Car.LicensePlate} - {x.Car.Generation.Model.Name} ({x.Count} rentals)");
+        Assert.Equal(expected, result);
     }
 
     /// <summary>
-    /// Determines the top five clients who have spent the most money 
-    /// based on the total duration and hourly rate of their rentals.
+    /// Checks the top 5 clients by total rental cost.
+    /// Computed dynamically based on seeded data.
     /// </summary>
     [Fact]
-    public void Top5ClientsByTotalRentSum_ShouldReturnTop5()
+    public void Top5ClientsByTotalRentalCostShouldReturnCorrectList()
     {
-        var topClients = _rentals
+        var expected = _rentals
             .GroupBy(r => r.Client)
             .Select(g => new
             {
-                Client = g.Key,
-                Total = g.Sum(r => r.DurationHours * r.Car.Generation.PricePerHour)
+                ClientName = g.Key.FullName,
+                TotalPrice = g.Sum(r => (int)(r.Car.Generation.PricePerHour * r.DurationHours))
             })
-            .OrderByDescending(x => x.Total)
+            .OrderByDescending(x => x.TotalPrice)
             .Take(5)
+            .Select(x => (x.ClientName, x.TotalPrice))
             .ToList();
 
-        Assert.True(topClients.Count <= 5);
+        var result = _rentals
+            .GroupBy(r => r.Client)
+            .Select(g => new
+            {
+                ClientName = g.Key.FullName,
+                TotalPrice = g.Sum(r => (int)(r.Car.Generation.PricePerHour * r.DurationHours))
+            })
+            .OrderByDescending(x => x.TotalPrice)
+            .Take(5)
+            .Select(x => (x.ClientName, x.TotalPrice))
+            .ToList();
 
-        foreach (var x in topClients)
-            Console.WriteLine($"{x.Client.FullName} ({x.Client.LicenseNumber}) - Total: {x.Total}");
+        Assert.Equal(expected, result);
     }
 }
