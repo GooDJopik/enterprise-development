@@ -25,4 +25,4 @@ jobs:
         run: dotnet build Car/CarRental.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test Car/CarRental.Tests/CarRental.Tests.csproj --no-build --verbosity normal
+        run: dotnet test Car/CarRental.Tests/CarRental.Tests.csproj --verbosity normal
