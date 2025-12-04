@@ -25,4 +25,6 @@ jobs:
         run: dotnet build Car/CarRental.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test Car/CarRental.Tests/CarRental.Tests.csproj --verbosity normal
+        run: |
+            chcp 65001
+            dotnet test Car/CarRental.Tests/CarRental.Tests.csproj --verbosity normal
