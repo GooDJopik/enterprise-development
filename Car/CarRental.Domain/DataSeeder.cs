@@ -73,17 +73,17 @@ public class DataSeeder
 
         Cars =
         [
-            new() { Id = 1, Generation = Generations[0], LicensePlate = "И101ВР", Color = "Белый" },
-            new() { Id = 2, Generation = Generations[1], LicensePlate = "О122ОР", Color = "Черный" },
-            new() { Id = 3, Generation = Generations[2], LicensePlate = "С323ОВ", Color = "Серый" },
-            new() { Id = 4, Generation = Generations[3], LicensePlate = "М234РР", Color = "Белый" },
-            new() { Id = 5, Generation = Generations[4], LicensePlate = "А754ВА", Color = "Черный" },
-            new() { Id = 6, Generation = Generations[5], LicensePlate = "У349КУ", Color = "Серый" },
+            new() { Id = 1, Generation = Generations[0], LicensePlate = "I101DH", Color = "Белый" },
+            new() { Id = 2, Generation = Generations[1], LicensePlate = "O122OP", Color = "Черный" },
+            new() { Id = 3, Generation = Generations[2], LicensePlate = "C323OB", Color = "Серый" },
+            new() { Id = 4, Generation = Generations[3], LicensePlate = "M234PP", Color = "Белый" },
+            new() { Id = 5, Generation = Generations[4], LicensePlate = "A754BA", Color = "Черный" },
+            new() { Id = 6, Generation = Generations[5], LicensePlate = "Y349KY", Color = "Серый" },
             new() { Id = 7, Generation = Generations[6], LicensePlate = "Т009ТР", Color = "Белый" },
             new() { Id = 8, Generation = Generations[7], LicensePlate = "Р108ВР", Color = "Черный" },
             new() { Id = 9, Generation = Generations[8], LicensePlate = "А166СС", Color = "Серый" },
-            new() { Id = 10, Generation = Generations[9], LicensePlate = "М110ЛС", Color = "Белый" },
-            new() { Id = 11, Generation = Generations[10], LicensePlate = "Е111ЕР", Color = "Черный" },
+            new() { Id = 10, Generation = Generations[9], LicensePlate = "M110LC", Color = "Белый" },
+            new() { Id = 11, Generation = Generations[10], LicensePlate = "E111EP", Color = "Черный" },
             new() { Id = 12, Generation = Generations[11], LicensePlate = "Е751ОВ", Color = "Серый" },
             new() { Id = 13, Generation = Generations[12], LicensePlate = "К361ЛО", Color = "Белый" },
             new() { Id = 14, Generation = Generations[13], LicensePlate = "А100МР", Color = "Черный" },
@@ -92,21 +92,21 @@ public class DataSeeder
 
         Clients =
         [
-            new() { Id = 1, LicenseNumber = "133416", FullName = "Иванов Иван Иванович", BirthDate = new DateTime(1990, 1, 15) },
-            new() { Id = 2, LicenseNumber = "214567", FullName = "Петров Алексей Сергеевич", BirthDate = new DateTime(1985, 5, 20) },
-            new() { Id = 3, LicenseNumber = "341178", FullName = "Сидорова Мария Павловна", BirthDate = new DateTime(1992, 3, 12) },
-            new() { Id = 4, LicenseNumber = "436489", FullName = "Кузнецов Дмитрий Алексеевич", BirthDate = new DateTime(1988, 7, 8) },
-            new() { Id = 5, LicenseNumber = "577890", FullName = "Смирнова Екатерина Николаевна", BirthDate = new DateTime(1995, 9, 30) },
-            new() { Id = 6, LicenseNumber = "688901", FullName = "Попов Сергей Викторович", BirthDate = new DateTime(1983, 12, 5) },
-            new() { Id = 7, LicenseNumber = "789092", FullName = "Васильева Ольга Михайловна", BirthDate = new DateTime(1991, 4, 22) },
-            new() { Id = 8, LicenseNumber = "850173", FullName = "Морозова Наталья Андреевна", BirthDate = new DateTime(1987, 6, 10) },
-            new() { Id = 9, LicenseNumber = "901534", FullName = "Фёдоров Андрей Петрович", BirthDate = new DateTime(1993, 11, 2) },
-            new() { Id = 10, LicenseNumber = "012045", FullName = "Ковалев Павел Юрьевич", BirthDate = new DateTime(1989, 2, 17) },
-            new() { Id = 11, LicenseNumber = "115033", FullName = "Новикова Елена Анатольевна", BirthDate = new DateTime(1994, 8, 25) },
-            new() { Id = 12, LicenseNumber = "223544", FullName = "Зайцев Михаил Фёдорович", BirthDate = new DateTime(1986, 10, 13) },
-            new() { Id = 13, LicenseNumber = "332455", FullName = "Соколов Светлана Николаевна", BirthDate = new DateTime(1990, 12, 30) },
-            new() { Id = 14, LicenseNumber = "447766", FullName = "Лебедев Константин Вячеславович", BirthDate = new DateTime(1984, 1, 9) },
-            new() { Id = 15, LicenseNumber = "580677", FullName = "Гусев Алексей Константинович", BirthDate = new DateTime(1988, 5, 18) }
+            new() { Id = 1, LicenseNumber = "133416", FullName = "Ivanov Ivan Ivanovich", BirthDate = new DateTime(1990, 1, 15) },
+            new() { Id = 2, LicenseNumber = "214567", FullName = "Petrov Alexey Sergeevich", BirthDate = new DateTime(1985, 5, 20) },
+            new() { Id = 3, LicenseNumber = "341178", FullName = "Sidorova Maria Pavlovna", BirthDate = new DateTime(1992, 3, 12) },
+            new() { Id = 4, LicenseNumber = "436489", FullName = "Kuznetsov Dmitry Alekseevich", BirthDate = new DateTime(1988, 7, 8) },
+            new() { Id = 5, LicenseNumber = "577890", FullName = "Smirnova Ekaterina Nikolaevna", BirthDate = new DateTime(1995, 9, 30) },
+            new() { Id = 6, LicenseNumber = "688901", FullName = "Popov Sergey Viktorovich", BirthDate = new DateTime(1983, 12, 5) },
+            new() { Id = 7, LicenseNumber = "789092", FullName = "Vasilyeva Olga Mikhailovna", BirthDate = new DateTime(1991, 4, 22) },
+            new() { Id = 8, LicenseNumber = "850173", FullName = "Morozova Natalia Andreevna", BirthDate = new DateTime(1987, 6, 10) },
+            new() { Id = 9, LicenseNumber = "901534", FullName = "Fyodorov Andrey Petrovich", BirthDate = new DateTime(1993, 11, 2) },
+            new() { Id = 10, LicenseNumber = "012045", FullName = "Kovalev Pavel Yurievich", BirthDate = new DateTime(1989, 2, 17) },
+            new() { Id = 11, LicenseNumber = "115033", FullName = "Novikova Elena Anatolyevna", BirthDate = new DateTime(1994, 8, 25) },
+            new() { Id = 12, LicenseNumber = "223544", FullName = "Zaitsev Mikhail Fedorovich", BirthDate = new DateTime(1986, 10, 13) },
+            new() { Id = 13, LicenseNumber = "332455", FullName = "Sokolova Svetlana Nikolaevna", BirthDate = new DateTime(1990, 12, 30) },
+            new() { Id = 14, LicenseNumber = "447766", FullName = "Lebedev Konstantin Vyacheslavovich", BirthDate = new DateTime(1984, 1, 9) },
+            new() { Id = 15, LicenseNumber = "580677", FullName = "Gusev Alexey Konstantinovich", BirthDate = new DateTime(1988, 5, 18) }
         ];
 
         Rentals =
