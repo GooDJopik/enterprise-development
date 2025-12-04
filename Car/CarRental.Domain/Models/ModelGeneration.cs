@@ -13,7 +13,7 @@ public class ModelGeneration
     /// <summary>
     /// The model to which this generation belongs.
     /// </summary>
-    public Model Model { get; set; } = new();
+    public required Model Model { get; set; }
 
     /// <summary>
     /// Year of release for this generation.
@@ -28,7 +28,7 @@ public class ModelGeneration
     /// <summary>
     /// Transmission type (e.g., manual, automatic).
     /// </summary>
-    public string TransmissionType { get; set; } = "";
+    public required string TransmissionType { get; set; }
 
     /// <summary>
     /// Rental price per hour in local currency.

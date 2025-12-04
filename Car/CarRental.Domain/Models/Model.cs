@@ -13,12 +13,12 @@ public class Model
     /// <summary>
     /// Name of the car model.
     /// </summary>
-    public string Name { get; set; } = "";
+    public required string Name { get; set; }
 
     /// <summary>
     /// Type of drive (e.g., front, rear, all-wheel).
     /// </summary>
-    public string DriveType { get; set; } = "";
+    public required string DriveType { get; set; }
 
     /// <summary>
     /// Number of seats in the car.
@@ -28,10 +28,10 @@ public class Model
     /// <summary>
     /// Body type of the car (e.g., sedan, SUV).
     /// </summary>
-    public string BodyType { get; set; } = "";
+    public required string BodyType { get; set; }
 
     /// <summary>
     /// Class of the car (e.g., economy, business, premium).
     /// </summary>
-    public string CarClass { get; set; } = "";
+    public required string CarClass { get; set; }
 }

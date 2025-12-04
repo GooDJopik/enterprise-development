@@ -8,7 +8,7 @@ public class Rental
     /// <summary>
     /// Unique identifier for the rental.
     /// </summary>
-    public int Id { get; set; }
+    public required int Id { get; set; }
 
     /// <summary>
     /// The client who rents the car.

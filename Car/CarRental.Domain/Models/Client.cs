@@ -13,12 +13,12 @@ public class Client
     /// <summary>
     /// Driver's license number of the client.
     /// </summary>
-    public string LicenseNumber { get; set; } = "";
+    public required string LicenseNumber { get; set; }
 
     /// <summary>
     /// Full name of the client.
     /// </summary>
-    public string FullName { get; set; } = "";
+    public required string FullName { get; set; }
 
     /// <summary>
     /// Birth date of the client.

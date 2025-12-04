@@ -1,138 +1,141 @@
+using CarRental.Domain;
+using CarRental.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using CarRental.Domain;
-using CarRental.Domain.Models;
 
 namespace CarRental.Tests;
 
 /// <summary>
-/// A set of unit tests to test the functionality of car rental.
-/// Checks are conducted based on reference data from <see cref="DataSeeder"/>.
+/// Unit tests for car rental queries using DataSeeder fixture.
 /// </summary>
-public class RentalTests(DataSeeder dataSeeder) : IClassFixture<DataSeeder>
+public class RentalTests(DataSeeder data) : IClassFixture<DataSeeder>
 {
-    private readonly List<Rental> _rentals = dataSeeder.Rentals;
-
     /// <summary>
-    /// Verifies that customers who have rented a car of a specified model are returned in alphabetical order by full name.
-    /// Works dynamically based on seeded data.
+    /// Customers who have rented a Toyota Corolla, sorted by full name.
     /// </summary>
     [Fact]
-    public void ClientsWhoRentedSpecificModelShouldBeOrderedByFullName()
+    public void ClientsByModelShouldReturnClientsOrderedByFullName()
     {
-        var modelName = "Toyota Corolla";
-
-        var expectedClients = _rentals
-            .Where(r => r.Car.Generation.Model.Name == modelName)
-            .Select(r => r.Client.FullName)
+        var clients = data.Rentals
+            .Where(r => r.Car?.Generation?.Model?.Name == "Toyota Corolla")
+            .Select(r => r.Client)
+            .Where(c => c != null)
             .Distinct()
-            .OrderBy(c => c)
+            .OrderBy(c => c.FullName)
             .ToList();
 
-        var result = _rentals
-            .Where(r => r.Car.Generation.Model.Name == modelName)
-            .Select(r => r.Client.FullName)
-            .Distinct()
-            .OrderBy(c => c)
-            .ToList();
+        var expected = new List<string>
+        {
+            "Иванов Иван Иванович",
+            "Морозова Наталья Андреевна"
+        };
 
-        Assert.Equal(expectedClients, result);
+        Assert.Equal(expected.Count, clients.Count);
+        Assert.All(expected, name => Assert.Contains(clients, c => c.FullName == name));
     }
 
     /// <summary>
-    /// Verifies that the cars currently rented at a given time are returned correctly.
+    /// Cars that are leased on a specific date.
     /// </summary>
     [Fact]
-    public void CarsCurrentlyRentedShouldReturnCarsInUse()
+    public void CarsCurrentlyRentedShouldReturnCorrectCars()
     {
-        var now = new DateTime(2025, 11, 10, 10, 0, 0);
+        var referenceDate = new DateTime(2025, 11, 10, 10, 0, 0);
 
-        var expectedLicensePlates = _rentals
-            .Where(r => r.StartTime <= now && r.StartTime.AddHours(r.DurationHours) > now)
-            .Select(r => r.Car.LicensePlate)
+        var currentlyRented = data.Rentals
+            .Where(r => r.StartTime <= referenceDate && referenceDate < r.StartTime.AddHours(r.DurationHours))
+            .Select(r => r.Car)
             .Distinct()
-            .OrderBy(c => c)
             .ToList();
 
-        var result = _rentals
-            .Where(r => r.StartTime <= now && r.StartTime.AddHours(r.DurationHours) > now)
-            .Select(r => r.Car.LicensePlate)
-            .Distinct()
-            .OrderBy(c => c)
-            .ToList();
+        var expectedCars = new List<Car>
+        {
+            data.Cars[0], 
+            data.Cars[1]
+        };
 
-        Assert.Equal(expectedLicensePlates, result);
+        Assert.Equal(expectedCars.Count, currentlyRented.Count);
+        Assert.All(expectedCars, car => Assert.Contains(car, currentlyRented));
     }
 
     /// <summary>
-    /// Checks the top 5 most frequently rented cars.
-    /// Works dynamically based on seeded data.
+    /// Top 5 most frequently rented cars.
     /// </summary>
     [Fact]
-    public void Top5MostFrequentlyRentedCarsShouldReturnCorrectResult()
+    public void Top5MostRentedCarsShouldReturnCorrectCars()
     {
-        var result = _rentals
-            .GroupBy(r => r.Car.LicensePlate)
-            .Select(g => new { LicensePlate = g.Key, Count = g.Count() })
-            .OrderByDescending(x => x.Count)
+        var topCars = data.Rentals
+            .Where(r => r.Car != null)
+            .GroupBy(r => r.Car)
+            .OrderByDescending(g => g.Count())
             .Take(5)
-            .Select(x => (x.LicensePlate, x.Count))
+            .Select(g => g.Key)
             .ToList();
 
-        Assert.True(result.SequenceEqual(result.OrderByDescending(x => x.Count)));
+        var expectedTop = new List<string>
+        {
+            "С323ОВ", 
+            "И101ВР", 
+            "М110ЛС", 
+            "У349КУ", 
+            "Е111ЕР"
+        };
+
+        Assert.Equal(expectedTop.Count, topCars.Count);
+        foreach (var license in expectedTop)
+        {
+            Assert.Contains(topCars, c => c.LicensePlate == license);
+        }
     }
 
     /// <summary>
-    /// Checks the number of rents for each car.
-    /// Dynamic validation based on seeded data.
+    /// The number of rents for each car.
     /// </summary>
     [Fact]
-    public void RentCountForEachCarShouldReturnCorrectCounts()
+    public void RentalCountPerCarShouldReturnCorrectCounts()
     {
-        var expected = _rentals
-            .GroupBy(r => r.Car.LicensePlate)
-            .ToDictionary(g => g.Key, g => g.Count());
+        var counts = data.Cars.ToDictionary(
+            car => car.LicensePlate,
+            car => data.Rentals.Count(r => r.Car == car)
+        );
 
-        var result = _rentals
-            .GroupBy(r => r.Car.LicensePlate)
-            .ToDictionary(g => g.Key, g => g.Count());
-
-        Assert.Equal(expected, result);
+        Assert.Equal(3, counts["И101ВР"]);
+        Assert.Equal(1, counts["О122ОР"]);
+        Assert.Equal(5, counts["С323ОВ"]);
+        Assert.Equal(2, counts["М234РР"]);
+        Assert.Equal(2, counts["А754ВА"]);
     }
 
     /// <summary>
-    /// Checks the top 5 clients by total rental cost.
-    /// Computed dynamically based on seeded data.
+    /// Top 5 clients by rental amount.
     /// </summary>
     [Fact]
-    public void Top5ClientsByTotalRentalCostShouldReturnCorrectList()
+    public void Top5ClientsByTotalSpentShouldReturnCorrectClients()
     {
-        var expected = _rentals
-            .GroupBy(r => r.Client)
-            .Select(g => new
+        var top5 = data.Clients
+            .Select(c => new
             {
-                ClientName = g.Key.FullName,
-                TotalPrice = g.Sum(r => (int)(r.Car.Generation.PricePerHour * r.DurationHours))
+                c.FullName,
+                TotalSpent = data.Rentals
+                    .Where(r => r.Client == c)
+                    .Sum(r => r.Car.Generation.PricePerHour * r.DurationHours)
             })
-            .OrderByDescending(x => x.TotalPrice)
+            .OrderByDescending(x => x.TotalSpent)
             .Take(5)
-            .Select(x => (x.ClientName, x.TotalPrice))
             .ToList();
 
-        var result = _rentals
-            .GroupBy(r => r.Client)
-            .Select(g => new
-            {
-                ClientName = g.Key.FullName,
-                TotalPrice = g.Sum(r => (int)(r.Car.Generation.PricePerHour * r.DurationHours))
-            })
-            .OrderByDescending(x => x.TotalPrice)
-            .Take(5)
-            .Select(x => (x.ClientName, x.TotalPrice))
-            .ToList();
+        var expected = new List<string>
+        {
+            "Петров Алексей Сергеевич",
+            "Иванов Иван Иванович",
+            "Попов Сергей Викторович",
+            "Гусев Алексей Константинович",
+            "Смирнова Екатерина Николаевна"
+        };
 
-        Assert.Equal(expected, result);
+        Assert.Equal(expected.Count, top5.Count);
+        Assert.All(expected, name => Assert.Contains(top5, x => x.FullName == name));
     }
 }
