@@ -18,15 +18,21 @@ public class RentalTests(DataSeeder data) : IClassFixture<DataSeeder>
     [Fact]
     public void ClientsByModelShouldReturnClientsOrderedByFullName()
     {
+        var expectedClients = new List<int>
+        {
+            data.Clients[0].Id, 
+            data.Clients[7].Id,
+        }.OrderBy(x => x).ToList();
+
         var clients = data.Rentals
-            .Where(r => r.Car?.Generation?.Model?.Name == "Toyota Corolla")
-            .Select(r => r.Client)
-            .Where(c => c != null)
+            .Where(r => r.Car.Generation.Model.Name == "Toyota Corolla")
+            .Select(r => r.Client.Id)
             .Distinct()
-            .OrderBy(c => c.FullName)
+            .OrderBy(id => id)
             .ToList();
 
         Assert.NotEmpty(clients);
+        Assert.Equal(expectedClients, clients);
     }
 
     /// <summary>
@@ -36,21 +42,20 @@ public class RentalTests(DataSeeder data) : IClassFixture<DataSeeder>
     public void CarsCurrentlyRentedShouldReturnCorrectCars()
     {
         var referenceDate = new DateTime(2025, 11, 10, 10, 0, 0);
+        var expectedCars = new List<string>
+        {
+            data.Cars[0].LicensePlate, 
+            data.Cars[1].LicensePlate
+        }.OrderBy(x => x).ToList();
 
         var currentlyRented = data.Rentals
             .Where(r => r.StartTime <= referenceDate && referenceDate < r.StartTime.AddHours(r.DurationHours))
-            .Select(r => r.Car)
+            .Select(r => r.Car.LicensePlate)
             .Distinct()
+            .OrderBy(x => x)
             .ToList();
 
-        var expectedCars = new List<Car>
-        {
-            data.Cars[0], 
-            data.Cars[1]
-        };
-
-        Assert.Equal(expectedCars.Count, currentlyRented.Count);
-        Assert.All(expectedCars, car => Assert.Contains(car, currentlyRented));
+        Assert.Equal(expectedCars, currentlyRented);
     }
 
     /// <summary>
@@ -59,14 +64,6 @@ public class RentalTests(DataSeeder data) : IClassFixture<DataSeeder>
     [Fact]
     public void Top5MostRentedCarsShouldReturnCorrectCars()
     {
-        var topCars = data.Rentals
-            .Where(r => r.Car != null)
-            .GroupBy(r => r.Car)
-            .OrderByDescending(g => g.Count())
-            .Take(5)
-            .Select(g => g.Key)
-            .ToList();
-
         var expectedTop = new List<string>
         {
             "C323OB", 
@@ -74,31 +71,34 @@ public class RentalTests(DataSeeder data) : IClassFixture<DataSeeder>
             "M110LC", 
             "Y349KY", 
             "E111EP"
-        };
+        }.OrderBy(x => x).ToList();
 
-        Assert.Equal(expectedTop.Count, topCars.Count);
-        foreach (var license in expectedTop)
-        {
-            Assert.Contains(topCars, c => c.LicensePlate == license);
-        }
+        var topCars = data.Rentals
+            .Where(r => r.Car != null)
+            .GroupBy(r => r.Car.LicensePlate)
+            .OrderByDescending(g => g.Count())
+            .Take(5)
+            .Select(g => g.Key)
+            .OrderBy(x => x)
+            .ToList();
+
+        Assert.Equal(expectedTop, topCars);
     }
 
     /// <summary>
     /// The number of rents for each car.
     /// </summary>
-    [Fact]
-    public void RentalCountPerCarShouldReturnCorrectCounts()
+    [Theory]
+    [InlineData("I101DH", 3)]
+    [InlineData("O122OP", 1)]
+    [InlineData("C323OB", 5)]
+    [InlineData("M234PP", 2)]
+    [InlineData("A754BA", 2)]
+    public void RentalCountPerCarShouldReturnCorrectCounts(string licensePlate, int expectedCount)
     {
-        var counts = data.Cars.ToDictionary(
-            car => car.LicensePlate,
-            car => data.Rentals.Count(r => r.Car == car)
-        );
+        var actualCount = data.Rentals.Count(r => r.Car.LicensePlate == licensePlate);
 
-        Assert.Equal(3, counts["I101DH"]);
-        Assert.Equal(1, counts["O122OP"]);
-        Assert.Equal(5, counts["C323OB"]);
-        Assert.Equal(2, counts["M234PP"]);
-        Assert.Equal(2, counts["A754BA"]);
+        Assert.Equal(expectedCount, actualCount);
     }
 
     /// <summary>
@@ -107,6 +107,15 @@ public class RentalTests(DataSeeder data) : IClassFixture<DataSeeder>
     [Fact]
     public void Top5ClientsByTotalSpentShouldReturnCorrectClients()
     {
+        var expected = new List<string>
+        {
+            "Petrov Alexey Sergeevich",
+            "Ivanov Ivan Ivanovich",
+            "Popov Sergey Viktorovich",
+            "Gusev Alexey Konstantinovich",
+            "Smirnova Ekaterina Nikolaevna"
+        }.OrderBy(x => x).ToList();
+
         var top5 = data.Clients
             .Select(c => new
             {
@@ -117,18 +126,10 @@ public class RentalTests(DataSeeder data) : IClassFixture<DataSeeder>
             })
             .OrderByDescending(x => x.TotalSpent)
             .Take(5)
+            .Select(x => x.FullName)
+            .OrderBy(x => x)
             .ToList();
 
-        var expected = new List<string>
-        {
-            "Petrov Alexey Sergeevich",
-            "Ivanov Ivan Ivanovich",
-            "Popov Sergey Viktorovich",
-            "Gusev Alexey Konstantinovich",
-            "Smirnova Ekaterina Nikolaevna"
-        };
-
-        Assert.Equal(expected.Count, top5.Count);
-        Assert.All(expected, name => Assert.Contains(top5, x => x.FullName == name));
+        Assert.Equal(expected, top5);
     }
 }
