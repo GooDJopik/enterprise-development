@@ -1,0 +1,284 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+
+#nullable disable
+
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
+namespace CarRental.Infrastructure.EfCore.Migrations
+{
+    /// <inheritdoc />
+    public partial class Initial : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: "clients",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    license_number = table.Column<string>(type: "text", nullable: false),
+                    full_name = table.Column<string>(type: "text", nullable: false),
+                    birth_date = table.Column<DateTime>(type: "date", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_clients", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "models",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    drive_type = table.Column<string>(type: "text", nullable: false),
+                    seats = table.Column<int>(type: "integer", nullable: false),
+                    body_type = table.Column<string>(type: "text", nullable: false),
+                    car_class = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_models", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "model_generations",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    model_id = table.Column<int>(type: "integer", nullable: false),
+                    year = table.Column<int>(type: "integer", nullable: false),
+                    engine_volume = table.Column<double>(type: "double precision", nullable: false),
+                    transmission_type = table.Column<string>(type: "text", nullable: false),
+                    price_per_hour = table.Column<decimal>(type: "numeric(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_model_generations", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_model_generations_models_model_id",
+                        column: x => x.model_id,
+                        principalTable: "models",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "cars",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    license_plate = table.Column<string>(type: "text", nullable: false),
+                    color = table.Column<string>(type: "text", nullable: false),
+                    generation_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_cars", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_cars_model_generations_generation_id",
+                        column: x => x.generation_id,
+                        principalTable: "model_generations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "rentals",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    client_id = table.Column<int>(type: "integer", nullable: false),
+                    car_id = table.Column<int>(type: "integer", nullable: false),
+                    start_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    duration_hours = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_rentals", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_rentals_cars_car_id",
+                        column: x => x.car_id,
+                        principalTable: "cars",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_rentals_clients_client_id",
+                        column: x => x.client_id,
+                        principalTable: "clients",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "clients",
+                columns: new[] { "id", "birth_date", "full_name", "license_number" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(1990, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Ivanov Ivan Ivanovich", "133416" },
+                    { 2, new DateTime(1985, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "Petrov Alexey Sergeevich", "214567" },
+                    { 3, new DateTime(1992, 3, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), "Sidorova Maria Pavlovna", "341178" },
+                    { 4, new DateTime(1988, 7, 8, 0, 0, 0, 0, DateTimeKind.Unspecified), "Kuznetsov Dmitry Alekseevich", "436489" },
+                    { 5, new DateTime(1995, 9, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), "Smirnova Ekaterina Nikolaevna", "577890" },
+                    { 6, new DateTime(1983, 12, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "Popov Sergey Viktorovich", "688901" },
+                    { 7, new DateTime(1991, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), "Vasilyeva Olga Mikhailovna", "789092" },
+                    { 8, new DateTime(1987, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Morozova Natalia Andreevna", "850173" },
+                    { 9, new DateTime(1993, 11, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), "Fyodorov Andrey Petrovich", "901534" },
+                    { 10, new DateTime(1989, 2, 17, 0, 0, 0, 0, DateTimeKind.Unspecified), "Kovalev Pavel Yurievich", "012045" },
+                    { 11, new DateTime(1994, 8, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "Novikova Elena Anatolyevna", "115033" },
+                    { 12, new DateTime(1986, 10, 13, 0, 0, 0, 0, DateTimeKind.Unspecified), "Zaitsev Mikhail Fedorovich", "223544" },
+                    { 13, new DateTime(1990, 12, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), "Sokolova Svetlana Nikolaevna", "332455" },
+                    { 14, new DateTime(1984, 1, 9, 0, 0, 0, 0, DateTimeKind.Unspecified), "Lebedev Konstantin Vyacheslavovich", "447766" },
+                    { 15, new DateTime(1988, 5, 18, 0, 0, 0, 0, DateTimeKind.Unspecified), "Gusev Alexey Konstantinovich", "580677" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "models",
+                columns: new[] { "id", "body_type", "car_class", "drive_type", "name", "seats" },
+                values: new object[,]
+                {
+                    { 1, "Седан", "Эконом", "Передний", "Toyota Corolla", 5 },
+                    { 2, "Кроссовер", "Премиум", "Полный", "BMW X5", 5 },
+                    { 3, "Седан", "Эконом", "Передний", "Kia Rio", 5 },
+                    { 4, "Седан", "Бизнес", "Передний", "Audi A4", 5 },
+                    { 5, "Седан", "Эконом", "Передний", "Lada Vesta", 5 },
+                    { 6, "Седан", "Премиум", "Полный", "Tesla Model 3", 5 },
+                    { 7, "Седан", "Эконом", "Передний", "Volkswagen Polo", 5 },
+                    { 8, "Кроссовер", "Средний", "Полный", "Hyundai Tucson", 5 },
+                    { 9, "Седан", "Бизнес", "Задний", "Mercedes C-Class", 5 },
+                    { 10, "Кроссовер", "Средний", "Полный", "Renault Duster", 5 },
+                    { 11, "Седан", "Бизнес", "Передний", "Mazda 6", 5 },
+                    { 12, "Кроссовер", "Средний", "Полный", "Nissan Qashqai", 5 },
+                    { 13, "Седан", "Средний", "Передний", "Skoda Octavia", 5 },
+                    { 14, "Внедорожник", "Премиум", "Полный", "Chevrolet Tahoe", 8 },
+                    { 15, "Седан", "Эконом", "Передний", "Ford Focus", 5 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "model_generations",
+                columns: new[] { "id", "engine_volume", "model_id", "price_per_hour", "transmission_type", "year" },
+                values: new object[,]
+                {
+                    { 1, 1.6000000000000001, 1, 1000m, "Автомат", 2020 },
+                    { 2, 2.0, 2, 2000m, "Автомат", 2021 },
+                    { 3, 1.3999999999999999, 3, 2500m, "Механика", 2019 },
+                    { 4, 2.0, 4, 1900m, "Автомат", 2020 },
+                    { 5, 1.6000000000000001, 5, 1000m, "Механика", 2018 },
+                    { 6, 1.2, 6, 8000m, "Автомат", 2022 },
+                    { 7, 1.3999999999999999, 7, 1250m, "Механика", 2020 },
+                    { 8, 2.0, 8, 2000m, "Автомат", 2021 },
+                    { 9, 2.0, 9, 2500m, "Автомат", 2019 },
+                    { 10, 1.6000000000000001, 10, 2300m, "Механика", 2020 },
+                    { 11, 2.0, 11, 3000m, "Автомат", 2020 },
+                    { 12, 1.6000000000000001, 12, 2500m, "Автомат", 2021 },
+                    { 13, 1.8, 13, 2500m, "Механика", 2019 },
+                    { 14, 5.2999999999999998, 14, 8000m, "Автомат", 2025 },
+                    { 15, 1.6000000000000001, 15, 1250m, "Автомат", 2018 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "cars",
+                columns: new[] { "id", "color", "generation_id", "license_plate" },
+                values: new object[,]
+                {
+                    { 1, "Белый", 1, "I101DH" },
+                    { 2, "Черный", 2, "O122OP" },
+                    { 3, "Серый", 3, "C323OB" },
+                    { 4, "Белый", 4, "M234PP" },
+                    { 5, "Черный", 5, "A754BA" },
+                    { 6, "Серый", 6, "Y349KY" },
+                    { 7, "Белый", 7, "Т009ТР" },
+                    { 8, "Черный", 8, "Р108ВР" },
+                    { 9, "Серый", 9, "А166СС" },
+                    { 10, "Белый", 10, "M110LC" },
+                    { 11, "Черный", 11, "E111EP" },
+                    { 12, "Серый", 12, "Е751ОВ" },
+                    { 13, "Белый", 13, "К361ЛО" },
+                    { 14, "Черный", 14, "А100МР" },
+                    { 15, "Серый", 15, "А185ЛР" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "rentals",
+                columns: new[] { "id", "car_id", "client_id", "duration_hours", "start_time" },
+                values: new object[,]
+                {
+                    { 1, 1, 1, 5, new DateTime(2025, 11, 10, 8, 0, 0, 0, DateTimeKind.Utc) },
+                    { 2, 3, 1, 2, new DateTime(2025, 11, 12, 19, 2, 2, 0, DateTimeKind.Utc) },
+                    { 3, 1, 1, 5, new DateTime(2025, 11, 15, 9, 0, 0, 0, DateTimeKind.Utc) },
+                    { 4, 6, 1, 6, new DateTime(2025, 11, 18, 10, 5, 5, 0, DateTimeKind.Utc) },
+                    { 5, 2, 2, 30, new DateTime(2025, 11, 9, 10, 1, 1, 0, DateTimeKind.Utc) },
+                    { 6, 11, 2, 6, new DateTime(2025, 11, 17, 13, 10, 10, 0, DateTimeKind.Utc) },
+                    { 7, 3, 3, 4, new DateTime(2025, 11, 3, 11, 2, 2, 0, DateTimeKind.Utc) },
+                    { 8, 10, 3, 3, new DateTime(2025, 11, 20, 10, 9, 9, 0, DateTimeKind.Utc) },
+                    { 9, 5, 4, 6, new DateTime(2025, 11, 4, 12, 4, 4, 0, DateTimeKind.Utc) },
+                    { 10, 14, 5, 2, new DateTime(2025, 11, 5, 9, 13, 13, 0, DateTimeKind.Utc) },
+                    { 11, 4, 5, 5, new DateTime(2025, 11, 22, 11, 3, 3, 0, DateTimeKind.Utc) },
+                    { 12, 10, 6, 5, new DateTime(2025, 11, 6, 12, 9, 9, 0, DateTimeKind.Utc) },
+                    { 13, 3, 6, 6, new DateTime(2025, 11, 7, 11, 2, 2, 0, DateTimeKind.Utc) },
+                    { 14, 15, 6, 4, new DateTime(2025, 11, 9, 14, 14, 14, 0, DateTimeKind.Utc) },
+                    { 15, 7, 6, 3, new DateTime(2025, 11, 11, 10, 6, 6, 0, DateTimeKind.Utc) },
+                    { 16, 15, 6, 7, new DateTime(2025, 11, 25, 9, 14, 14, 0, DateTimeKind.Utc) },
+                    { 17, 3, 7, 3, new DateTime(2025, 11, 7, 9, 2, 2, 0, DateTimeKind.Utc) },
+                    { 18, 1, 8, 4, new DateTime(2025, 11, 8, 10, 0, 0, 0, DateTimeKind.Utc) },
+                    { 19, 12, 8, 2, new DateTime(2025, 11, 28, 15, 11, 11, 0, DateTimeKind.Utc) },
+                    { 20, 9, 9, 6, new DateTime(2025, 11, 9, 11, 8, 8, 0, DateTimeKind.Utc) },
+                    { 21, 10, 10, 2, new DateTime(2025, 11, 10, 12, 9, 9, 0, DateTimeKind.Utc) },
+                    { 22, 7, 10, 4, new DateTime(2025, 11, 1, 8, 6, 6, 0, DateTimeKind.Utc) },
+                    { 23, 11, 11, 5, new DateTime(2025, 11, 11, 9, 10, 10, 0, DateTimeKind.Utc) },
+                    { 24, 12, 12, 3, new DateTime(2025, 11, 12, 14, 11, 11, 0, DateTimeKind.Utc) },
+                    { 25, 3, 13, 4, new DateTime(2025, 11, 13, 9, 2, 2, 0, DateTimeKind.Utc) },
+                    { 26, 4, 14, 6, new DateTime(2025, 11, 14, 10, 3, 3, 0, DateTimeKind.Utc) },
+                    { 27, 6, 15, 4, new DateTime(2025, 11, 18, 11, 5, 5, 0, DateTimeKind.Utc) },
+                    { 28, 5, 15, 2, new DateTime(2025, 11, 15, 11, 4, 4, 0, DateTimeKind.Utc) }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_cars_generation_id",
+                table: "cars",
+                column: "generation_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_model_generations_model_id",
+                table: "model_generations",
+                column: "model_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_rentals_car_id",
+                table: "rentals",
+                column: "car_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_rentals_client_id",
+                table: "rentals",
+                column: "client_id");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "rentals");
+
+            migrationBuilder.DropTable(
+                name: "cars");
+
+            migrationBuilder.DropTable(
+                name: "clients");
+
+            migrationBuilder.DropTable(
+                name: "model_generations");
+
+            migrationBuilder.DropTable(
+                name: "models");
+        }
+    }
+}

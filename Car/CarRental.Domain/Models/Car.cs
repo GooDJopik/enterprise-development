@@ -23,5 +23,10 @@ public class Car
     /// <summary>
     /// The generation of the car's model.
     /// </summary>
+    public int GenerationId { get; set; }
+
+    /// <summary>
+    /// Navigation property for GenerationId.
+    /// </summary>
     public required ModelGeneration Generation { get; set; }
 }

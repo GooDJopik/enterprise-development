@@ -13,10 +13,20 @@ public class Rental
     /// <summary>
     /// The client who rents the car.
     /// </summary>
+    public int ClientId { get; set; }
+
+    /// <summary>
+    /// Navigation property for ClientId.
+    /// </summary>
     public required Client Client { get; set; }
 
     /// <summary>
     /// The car being rented.
+    /// </summary>
+    public int CarId { get; set; }
+
+    /// <summary>
+    /// Navigation property for CarId.
     /// </summary>
     public required Car Car { get; set; }
 

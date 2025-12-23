@@ -32,3 +32,69 @@ Top5MostFrequentlyRentedCarsShouldReturnCorrectResult — определение
 RentCountForEachCarShouldReturnCorrectCounts — подсчёт количества аренд для каждого автомобиля с динамической проверкой на основе подготовленных данных.
 
 Top5ClientsByTotalRentalCostShouldReturnCorrectList — определение топ-5 клиентов по суммарной стоимости всех аренд, с расчётом стоимости на основе продолжительности аренды и часовой ставки автомобиля.
+
+---
+
+# Лабораторные работы №2-3 — «Сервер» и «ORM»
+
+В рамках лабораторных работ №2 и №3 реализовано серверное приложение с REST API и подключением к базе данных PostgreSQL.
+Хранение данных сразу выполнено через ORM (Entity Framework Core) без промежуточного этапа in-memory коллекций.
+
+## Структура проекта
+
+- **CarRental.Domain** — доменная модель: сущности (Car, Client, Model, ModelGeneration, Rental) и интерфейс репозитория IRepository<T>.
+- **CarRental.Infrastructure.EfCore** — реализация инфраструктурного слоя: DbContext, репозитории на EF Core, миграции и первоначальное заполнение данных (seed).
+- **CarRental.Application.Contracts** — контракты приложения: DTO-классы и интерфейсы сервисов (IApplicationService<TDto, TCreateUpdateDto>, IAnalyticsService).
+- **CarRental.Application** — реализация бизнес-логики: CRUD-сервисы для каждой сущности, AnalyticsService для аналитических запросов, профиль AutoMapper.
+- **CarRental.Api.Host** — ASP.NET Core Web API: контроллеры для CRUD-операций и аналитики, Swagger-документация.
+- **CarRental.AppHost** — .NET Aspire AppHost для оркестрации запуска сервера и базы данных.
+- **CarRental.ServiceDefaults** — общие настройки для Aspire-проектов.
+- **CarRental.Tests** — модульные тесты на xUnit.
+
+## REST API
+
+### CRUD-контроллеры
+
+Для каждой сущности реализован контроллер, наследующийся от базового CrudControllerBase<TDto, TCreateUpdateDto>
+
+Каждый контроллер предоставляет стандартные операции:
+- `GET /api/{entity}` — получение всех записей
+- `GET /api/{entity}/{id}` — получение записи по идентификатору
+- `POST /api/{entity}` — создание новой записи
+- `PUT /api/{entity}/{id}` — обновление существующей записи
+- `DELETE /api/{entity}/{id}` — удаление записи
+
+### Контроллер аналитики
+
+AnalyticsController предоставляет эндпоинты для аналитических запросов:
+
+GET /api/analytics/clients-rented-model - Клиенты, арендовавшие автомобили указанной модели
+GET /api/analytics/cars-currently-rented - Автомобили, находящиеся в аренде на указанный момент времени
+GET /api/analytics/top-5-most-rented-cars - Топ-5 наиболее часто арендуемых автомобилей
+GET /api/analytics/rental-count-per-car - Количество аренд для каждого автомобиля
+GET /api/analytics/top-5-clients-by-total-spent - Топ-5 клиентов по суммарной стоимости аренд
+
+## База данных
+
+### Entity Framework Core + PostgreSQL
+
+Для работы с базой данных используется Entity Framework Core с провайдером Npgsql для PostgreSQL.
+
+Особенности конфигурации:
+- Наименование таблиц и столбцов в стиле snake_case (cars, clients, rentals и т.д.)
+- Явное указание свойств внешних ключей (CarId, ClientId, ModelId, ModelGenerationId)
+- Первоначальное заполнение данных через HasData в миграциях
+
+### Миграции
+
+Создана начальная миграция `Initial`, которая:
+- Создаёт таблицы для всех сущностей
+- Настраивает связи между таблицами
+- Заполняет таблицы тестовыми данными
+
+## Оркестрация с .NET Aspire
+
+Проект CarRental.AppHost настроен как Aspire AppHost и обеспечивает:
+- Запуск контейнера PostgreSQL
+- Запуск серверного приложения CarRental.Api.Host
+- Передачу строки подключения к базе данных через конфигурацию

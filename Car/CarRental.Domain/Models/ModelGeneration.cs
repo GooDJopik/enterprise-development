@@ -13,6 +13,11 @@ public class ModelGeneration
     /// <summary>
     /// The model to which this generation belongs.
     /// </summary>
+    public int ModelId { get; set; }
+
+    /// <summary>
+    /// Navigation property for ModelId.
+    /// </summary>
     public required Model Model { get; set; }
 
     /// <summary>
