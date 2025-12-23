@@ -133,6 +133,7 @@ public abstract class CrudControllerBase<TDto, TCreateUpdateDto>(
     /// <returns>Created item.</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<TDto>> Create([FromBody] TCreateUpdateDto input)
     {
@@ -160,6 +161,19 @@ public abstract class CrudControllerBase<TDto, TCreateUpdateDto>(
 
             return Created(string.Empty, created);
         }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Request failed (bad request): traceId={TraceId} controller={Controller} action={Action} status={StatusCode} elapsedMs={ElapsedMs}",
+                HttpContext.TraceIdentifier,
+                controllerName,
+                actionName,
+                StatusCodes.Status400BadRequest,
+                Stopwatch.GetElapsedTime(start).TotalMilliseconds);
+
+            return Problem(title: ex.Message, statusCode: StatusCodes.Status400BadRequest);
+        }
         catch (Exception ex)
         {
             logger.LogError(
@@ -183,6 +197,7 @@ public abstract class CrudControllerBase<TDto, TCreateUpdateDto>(
     /// <returns>Updated item if found; otherwise 404.</returns>
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<TDto>> Update([FromRoute] int id, [FromBody] TCreateUpdateDto input)
@@ -223,6 +238,19 @@ public abstract class CrudControllerBase<TDto, TCreateUpdateDto>(
                 Stopwatch.GetElapsedTime(start).TotalMilliseconds);
 
             return Ok(updated);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Request failed (bad request): traceId={TraceId} controller={Controller} action={Action} status={StatusCode} elapsedMs={ElapsedMs}",
+                HttpContext.TraceIdentifier,
+                controllerName,
+                actionName,
+                StatusCodes.Status400BadRequest,
+                Stopwatch.GetElapsedTime(start).TotalMilliseconds);
+
+            return Problem(title: ex.Message, statusCode: StatusCodes.Status400BadRequest);
         }
         catch (Exception ex)
         {
