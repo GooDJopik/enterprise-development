@@ -21,11 +21,11 @@ public abstract class EfRepository<TEntity>(CarRentalDbContext dbContext) : IRep
     protected DbSet<TEntity> Set => DbContext.Set<TEntity>();
 
     /// <inheritdoc />
-    public ValueTask<TEntity?> GetById(int id)
+    public virtual ValueTask<TEntity?> GetById(int id)
         => Set.FindAsync(id);
 
     /// <inheritdoc />
-    public Task<List<TEntity>> GetAll()
+    public virtual Task<List<TEntity>> GetAll()
         => Set.ToListAsync();
 
     /// <inheritdoc />

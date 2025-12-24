@@ -31,7 +31,8 @@ public sealed class CarRentalApplicationProfile : Profile
         CreateMap<ModelCreateUpdateDto, Model>()
             .ForMember(d => d.Id, opt => opt.Ignore());
 
-        CreateMap<ModelGeneration, ModelGenerationDto>();
+        CreateMap<ModelGeneration, ModelGenerationDto>()
+            .ForMember(d => d.ModelName, opt => opt.MapFrom(s => s.Model.Name));
         CreateMap<ModelGenerationCreateUpdateDto, ModelGeneration>()
             .ForMember(d => d.Id, opt => opt.Ignore())
             .ForMember(d => d.Model, opt => opt.Ignore());
