@@ -98,3 +98,56 @@ GET /api/analytics/top-5-clients-by-total-spent - Топ-5 клиентов по
 - Запуск контейнера PostgreSQL
 - Запуск серверного приложения CarRental.Api.Host
 - Передачу строки подключения к базе данных через конфигурацию
+
+---
+
+# Лабораторная работа №4 - «Брокер сообщений»
+
+В рамках лабораторной работы №4 реализована интеграция с брокером сообщений NATS с использованием JetStream для генерации и обработки заявок на аренду автомобилей
+
+## Архитектура
+
+Реализована схема "Producer-Consumer" с разделением на независимые компоненты:
+
+- **CarRental.Generator.Nats.Host** - отдельное приложение-генератор (Worker Service), которое генерирует случайные заявки на аренду и публикует их в NATS JetStream
+- **CarRental.Infrastructure.Nats** - библиотека с консьюмером, который получает сообщения из NATS и сохраняет их в базу данных через RentalService
+
+## Новые проекты
+
+### CarRental.Generator.Nats.Host
+
+Worker Service для генерации тестовых данных аренды:
+
+- **RentalGenerator** - генерация случайных `RentalCreateUpdateDto` с использованием библиотеки Bogus:
+  - `ClientId` и `CarId` в диапазоне 1-30
+  - `DurationHours` от 1 до 744 часов
+  - `StartTime` в диапазоне +-30 дней от текущей даты
+- **RentalProducer** - публикация сообщений в NATS JetStream с автоматическим созданием стрима при запуске
+- **RentalGeneratorService** - BackgroundService, запускающий генерацию и публикацию с настраиваемым интервалом
+
+### CarRental.Infrastructure.Nats
+
+Библиотека инфраструктурного слоя для работы с NATS:
+
+- **RentalConsumerService** - BackgroundService для получения сообщений из JetStream:
+  - Автоматическое создание стрима и консьюмера при запуске
+  - Десериализация `RentalCreateUpdateDto` из JSON
+  - Вызов `RentalService.Create` для сохранения в БД
+  - При `InvalidOperationException` (отсутствие связанных сущностей) - логирование предупреждения и ACK сообщения
+  - При других ошибках - NAK для повторной обработки
+
+## Обновления существующих проектов
+
+### CarRental.Api.Host
+
+- Добавлена ссылка на `CarRental.Infrastructure.Nats`
+- Подключён NATS клиент через `AddNatsClient("nats")`
+- Зарегистрирован `RentalConsumerService` как hosted service
+
+### CarRental.AppHost
+
+Расширена конфигурация Aspire:
+- Добавлен контейнер NATS с JetStream
+- Добавлен контейнер NUI (NATS UI) для мониторинга на порту 31311
+- Добавлен проект генератора `CarRental.Generator.Nats.Host`
+- Настроены зависимости: генератор и API ожидают готовности NATS
