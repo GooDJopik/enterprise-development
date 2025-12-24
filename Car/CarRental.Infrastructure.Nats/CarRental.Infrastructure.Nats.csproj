@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.NATS.Net" Version="13.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CarRental.Application\CarRental.Application.csproj" />
+    <ProjectReference Include="..\CarRental.Application.Contracts\CarRental.Application.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

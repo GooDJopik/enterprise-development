@@ -12,11 +12,13 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="13.1.0" />
+    <PackageReference Include="Aspire.Hosting.Nats" Version="13.1.0" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CarRental.Api.Host\CarRental.Api.Host.csproj" />
+    <ProjectReference Include="..\CarRental.Generator.Nats.Host\CarRental.Generator.Nats.Host.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,3 @@
-using AutoMapper;
 using CarRental.Application.Contracts.Dtos.Cars;
 using CarRental.Application.Contracts.Dtos.Clients;
 using CarRental.Application.Contracts.Dtos.ModelGenerations;
@@ -11,6 +10,8 @@ using CarRental.Domain.Models;
 using CarRental.Domain.Repositories;
 using CarRental.Infrastructure.EfCore;
 using CarRental.Infrastructure.EfCore.Repositories;
+using CarRental.Infrastructure.Nats.Configuration;
+using CarRental.Infrastructure.Nats.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +37,8 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.AddNpgsqlDbContext<CarRentalDbContext>("CarRentalDatabase");
 
+builder.AddNatsClient("nats");
+
 builder.Services.AddAutoMapper(configAction =>
 {
     configAction.AddProfile<CarRentalApplicationProfile>();
@@ -54,6 +57,10 @@ builder.Services.AddScoped<IApplicationService<ModelGenerationDto, ModelGenerati
 builder.Services.AddScoped<IApplicationService<RentalDto, RentalCreateUpdateDto>, RentalService>();
 
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+
+builder.Services.Configure<RentalConsumerOptions>(builder.Configuration.GetSection(RentalConsumerOptions.SectionName));
+
+builder.Services.AddHostedService<RentalConsumerService>();
 
 var app = builder.Build();
 
